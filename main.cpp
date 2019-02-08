@@ -10,6 +10,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Shader.h"
+
 
 void FrameBufferViewPort(GLFWwindow* window, int width, int height);
 
@@ -35,7 +37,9 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    std::stringstream vertexS,fragmentS;
+    auto *defaultshader = new Shader("resources/shaders/vertex.glsl","resources/shaders/fragment.glsl");
+
+    /*std::stringstream vertexS,fragmentS;
     std::ifstream ver("resources/shaders/vertex.glsl"),frag("resources/shaders/fragment.glsl");
     vertexS << ver.rdbuf();
     fragmentS << frag.rdbuf();
@@ -69,7 +73,7 @@ int main() {
     }
     glDeleteShader(vertex);
     glDeleteShader(fragment);
-    std::cout << vertexShaderSource << "\n";
+    std::cout << vertexShaderSource << "\n";*/
     //load models
     float vertices[] = {
             // positions        // texture coords
@@ -130,11 +134,11 @@ int main() {
 
     //glm::mat4
 
-    glUseProgram(program);
-    glUniformMatrix4fv(glGetUniformLocation(program,"projection"),1,GL_FALSE,glm::value_ptr(projection));
-    glUniformMatrix4fv(glGetUniformLocation(program,"view"),1,GL_FALSE,glm::value_ptr(view));
+    defaultshader->use();
+    glUniformMatrix4fv(glGetUniformLocation(defaultshader->getID(),"projection"),1,GL_FALSE,glm::value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(defaultshader->getID(),"view"),1,GL_FALSE,glm::value_ptr(view));
 
-    glUniform1i(glGetUniformLocation(program,"image"),0);
+    glUniform1i(glGetUniformLocation(defaultshader->getID(),"image"),0);
     while(!glfwWindowShouldClose(window)){
         //input
         glClearColor(0.3f,0.3f,0.3f,1.0f);
@@ -148,9 +152,9 @@ int main() {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D,texture);
         //render
-        glUseProgram(program);
+        defaultshader->use();
 
-        glUniformMatrix4fv(glGetUniformLocation(program,"model"),1,GL_FALSE,glm::value_ptr(trans));
+        glUniformMatrix4fv(glGetUniformLocation(defaultshader->getID(),"model"),1,GL_FALSE,glm::value_ptr(trans));
 
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES,sizeof(indices),GL_UNSIGNED_INT,0);

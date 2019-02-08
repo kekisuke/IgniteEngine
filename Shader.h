@@ -6,6 +6,9 @@
 #define TESTIGINTEENGINE_SHADER_H
 
 #include <string>
+#include <sstream>
+#include <fstream>
+#include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
@@ -13,6 +16,7 @@
 
 class Shader {
 public:
+    Shader(const char* vertexShaderpath,const char* fragmentShaderpath,const char* geometryShaderpath= nullptr);
     void use();
     void SetFloat(const GLchar *name, GLfloat value);
     void SetInt(const GLchar *name, GLint value);
