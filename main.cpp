@@ -1,16 +1,17 @@
-#define STB_IMAGE_IMPLEMENTATION
+//#define STB_IMAGE_IMPLEMENTATION
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <include/stb_image.h>
+//#include <include/stb_image.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.h"
+#include "Texture.h"
 
 
 void FrameBufferViewPort(GLFWwindow* window, int width, int height);
@@ -39,41 +40,6 @@ int main() {
 
     auto *defaultshader = new Shader("resources/shaders/vertex.glsl","resources/shaders/fragment.glsl");
 
-    /*std::stringstream vertexS,fragmentS;
-    std::ifstream ver("resources/shaders/vertex.glsl"),frag("resources/shaders/fragment.glsl");
-    vertexS << ver.rdbuf();
-    fragmentS << frag.rdbuf();
-    std::string v = vertexS.str(),f=fragmentS.str();
-    const char *vertexShaderSource=v.c_str(),*fragmentShaderSource=f.c_str();
-    //load shaders
-    unsigned int vertex=glCreateShader(GL_VERTEX_SHADER),fragment=glCreateShader(GL_FRAGMENT_SHADER),program=glCreateProgram();
-    glShaderSource(vertex,1,&vertexShaderSource, NULL);
-    glCompileShader(vertex);
-    int success;
-    char log[512];
-    glGetShaderiv(vertex,GL_COMPILE_STATUS,&success);
-    if(!success){
-        glGetShaderInfoLog(vertex,512,NULL,log);
-        std::cout << "vertex shader compile err: \n" << log << "\n";
-    }
-    glShaderSource(fragment,1,&fragmentShaderSource,NULL);
-    glCompileShader(fragment);
-    glGetShaderiv(fragment,GL_COMPILE_STATUS,&success);
-    if(!success){
-        glGetShaderInfoLog(fragment,512,NULL,log);
-        std::cout << "fragment shader compile err: \n" << log << "\n";
-    }
-    glAttachShader(program,vertex);
-    glAttachShader(program,fragment);
-    glLinkProgram(program);
-    glGetProgramiv(program,GL_LINK_STATUS,&success);
-    if(!success){
-        glGetProgramInfoLog(program,512,NULL,log);
-        std::cout << "program link err: \n" << log << "\n";
-    }
-    glDeleteShader(vertex);
-    glDeleteShader(fragment);
-    std::cout << vertexShaderSource << "\n";*/
     //load models
     float vertices[] = {
             // positions        // texture coords
@@ -106,26 +72,9 @@ int main() {
 
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
-    unsigned int texture;
-    glGenTextures(1,&texture);
-    glBindTexture(GL_TEXTURE_2D,texture);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    int width,height,nrChannel;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char *data = stbi_load("resources/textures/wall.jpg",&width,&height,&nrChannel,0);
-    if(data){
-        glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,data);
-        glGenerateMipmap(GL_TEXTURE_2D);
+    auto texture = new Texture("resources/textures/wall.jpg",JPG);
 
-    } else {
-        std::cout << "failed loading texture\n";
-    }
-    //loop
-    stbi_image_free(data);
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f),(float)1280/720,0.1f,100.0f);
 
@@ -138,7 +87,7 @@ int main() {
     glUniformMatrix4fv(glGetUniformLocation(defaultshader->getID(),"projection"),1,GL_FALSE,glm::value_ptr(projection));
     glUniformMatrix4fv(glGetUniformLocation(defaultshader->getID(),"view"),1,GL_FALSE,glm::value_ptr(view));
 
-    glUniform1i(glGetUniformLocation(defaultshader->getID(),"image"),0);
+    //glUniform1i(glGetUniformLocation(defaultshader->getID(),"image"),0);
     while(!glfwWindowShouldClose(window)){
         //input
         glClearColor(0.3f,0.3f,0.3f,1.0f);
@@ -150,7 +99,7 @@ int main() {
 
         //bind texture
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D,texture);
+        texture->bind();
         //render
         defaultshader->use();
 

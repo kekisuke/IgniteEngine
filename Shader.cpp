@@ -9,8 +9,11 @@ Shader::Shader(const char *vertexShaderpath,const char* fragmentShaderpath,const
     std::ifstream ver(vertexShaderpath),frag(fragmentShaderpath);
     vertexS << ver.rdbuf();
     fragmentS << frag.rdbuf();
-    const char *vertexShaderSource=vertexS.str().c_str(),*fragmentShaderSource=fragmentS.str().c_str();
+    std::string v = vertexS.str(),f=fragmentS.str();
+    const char *vertexShaderSource=v.c_str(),*fragmentShaderSource=f.c_str();
     std::cout << vertexShaderSource << "\n" << fragmentShaderSource << "\n";
+    ver.close();
+    frag.close();
     unsigned int vertex=glCreateShader(GL_VERTEX_SHADER),fragment=glCreateShader(GL_FRAGMENT_SHADER),geometry;
     this->ID = glCreateProgram();
     glShaderSource(vertex,1,&vertexShaderSource,nullptr);
@@ -25,7 +28,9 @@ Shader::Shader(const char *vertexShaderpath,const char* fragmentShaderpath,const
         std::stringstream gS;
         std::ifstream geo(geometryShaderpath);
         gS << geo.rdbuf();
-        const char *geometryShaderSource = gS.str().c_str();
+        std::string g=gS.str();
+        const char *geometryShaderSource = g.c_str();
+        geo.close();
         geometry=glCreateShader(GL_GEOMETRY_SHADER);
         glShaderSource(geometry,1,&geometryShaderSource, nullptr);
         glCompileShader(geometry);
